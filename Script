@@ -151,10 +151,12 @@ for feat in point_layer.getFeatures():
     filtered_layer.dataProvider().deleteFeatures(IDlist)
     filtered_layer.commitChanges()
     print('finish filtering')
+    
     ## Starting merging isochrones lines with dissolve tool
     merged_path = '.../Class_session/Output/#1/Merged/' + value_list[2] + '_merged.shp'
     processing.run('qgis:dissolve', {"INPUT": filtered_layer, "FIELD": None, "OUTPUT": merged_path})
     print('finish merging')
+    
     ## Starting Adding field data from a POI point
 
     ## Calling merged isochrone layer
@@ -169,6 +171,7 @@ for feat in point_layer.getFeatures():
     ret2_output.startEditing()
     ret2_output.changeAttributeValue(1, 1, value_list[0])
     ret2_output.commitChanges()
+    
     ## Adding rest field data
     for i in range(1, field_length):
         ret2 = processing.run('qgis:addfieldtoattributestable',
@@ -185,12 +188,14 @@ for feat in point_layer.getFeatures():
     final_writer = QgsVectorFileWriter.writeAsVectorFormat(ret2_output, final_path, "UTF-8", original_iso.crs(),
                                                            "ESRI Shapefile")
     print('finish updating field')
+    
     ## Removing layers on projection map
     QgsProject.instance().removeMapLayer(original_layer.id())
     QgsProject.instance().removeMapLayer(filtered_layer.id())
     QgsProject.instance().removeMapLayer(merged_layer.id())
     QgsProject.instance().removeMapLayer(buffer_layer.id())
     print('finish removing layers')
+    
     ## Printing processing finish and adding 1 to file number
     print('#' + str(num) + '_'+ value_list[2] + ' Done')
     num += 1
