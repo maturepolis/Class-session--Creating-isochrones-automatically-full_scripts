@@ -74,14 +74,17 @@ for feat in point_layer.getFeatures():
     ## Extracting field values of POI point
     value_list = feat.attributes()
     print(value_list[2])
+    
     ## Extracting feature id
     id = feat.id()
+    
     ## Saving feature as temporary layer
     temporary_path = '.../Class_session/Temporary/temporary_node.shp'
     temporary_node = point_layer.selectByIds([id])
     temporary_layer = point_layer.selectedFeatures()
     temporary_writer = QgsVectorFileWriter.writeAsVectorFormat(point_layer, temporary_path, "UTF-8", point_layer.crs(), "ESRI Shapefile", True)
     print('finish temporary node')
+    
     ## Creating a buffer from point
     ret_buffer = processing.run(alg_buffer, {"INPUT": temporary_path, \
                                              "DISTANCE": distance, \
@@ -92,6 +95,7 @@ for feat in point_layer.getFeatures():
                                              "DISSOLVE": dissolve, \
                                              "OUTPUT": output_buffer},)
     print('finish buffer')
+    
     ## Loading a buffer layer
     buffer_poject = iface.addVectorLayer(output_buffer, "buffer", "ogr")
     buffer_layer = QgsProject.instance().mapLayersByName('buffer')[0]
@@ -103,10 +107,12 @@ for feat in point_layer.getFeatures():
                                              "INTERSECT": intersect, \
                                              "METHOD": method})
     print('finish selection')
+    
     ## Saving selected lines
     selected_path = '.../Class_session/Temporary/selected.shp'
     selected_writer = QgsVectorFileWriter.writeAsVectorFormat(line_layer, selected_path, "UTF-8", line_layer.crs(), "ESRI Shapefile", True)
     print('finish saving selection')
+    
     ## Strating running v.net.iso and saving the result
     output_name = '.../Class_session/Output/#1/Original/' + value_list[2] + '_original.shp'
 
@@ -129,6 +135,7 @@ for feat in point_layer.getFeatures():
                                "GRASS_VECTOR_LCO": ico, \
                                "output": output_name})
     print('finish iso')
+    
     ## Calling the output of v.net.iso
     original_path = ret_iso["output"]
     original_layer = iface.addVectorLayer(original_path, value_list[2] + '_original', "ogr")
@@ -162,6 +169,7 @@ for feat in point_layer.getFeatures():
     ## Calling merged isochrone layer
     merged_layer = iface.addVectorLayer(merged_path, value_list[2] + '_merged', 'ogr')
     merged_layer.startEditing()
+    
     ## Adding first field data (field name, field type, field value)
     ret2 = processing.run('qgis:addfieldtoattributestable', {"INPUT": merged_layer, "FIELD_NAME": point_field_names[0], \
                                                              "FIELD_TYPE": point_field_types[0], "FIELD_LENGTH": 10,
@@ -200,7 +208,7 @@ for feat in point_layer.getFeatures():
     print('#' + str(num) + '_'+ value_list[2] + ' Done')
     num += 1
 
-print('Finish!')
-
 QgsProject.instance().removeMapLayer(point_layer.id())
 QgsProject.instance().removeMapLayer(line_layer.id())
+
+print('Finish!')
